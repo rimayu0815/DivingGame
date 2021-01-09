@@ -11,15 +11,15 @@ public class FlowerCircle : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        transform.DORotate(new Vector3(0, 360, 0), 5.0f, RotateMode.FastBeyond360)//花を５秒かけて360度回転させる
+         .SetEase(Ease.Linear)
+         .SetLoops(-1, LoopType.Restart);//無限ループ
+
     }
 
     // Update is called once per frame
     void Update()
     {
-        transform.DORotate(new Vector3(0, 360, 0), 5.0f, RotateMode.FastBeyond360)//花を５秒かけて360度回転させる
-                 .SetEase(Ease.Linear)
-                 .SetLoops(-1, LoopType. Restart);//無限ループ
 
     }
 

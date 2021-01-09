@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class GameMaster : MonoBehaviour
 {
-    private int score;
+    private int score = 0;
     [SerializeField]
     private Text ScoreLabel;
 
@@ -22,20 +22,18 @@ public class GameMaster : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        score = 0;
-
         ScoreLabel.text = "Score:" + score;
 
 
-        GameObject p = GameObject.Find("penguin");//ペンギンのｙ座標取得のため
-        //startPosition = p.transform.position.y;//これ作ったけどいらない
+        p = GameObject.Find("penguin");//ペンギンのｙ座標取得のため
+        startPosition = p.transform.position.y;//これ作ったけどいらない
 
-        GameObject w = GameObject.Find("WaterProDaytime");
+        w = GameObject.Find("WaterProDaytime");
         waterPosition = w.transform.position.y;//これ作ったけどいらない---下にある57行目がなぜかうまくいかないため復活
 
-        distance = (p.transform.position.y - w.transform.position.y)*100f;//変数作って入れなくてもこれでできる
+        //distance = (p.transform.position.y - w.transform.position.y)*100f;//変数作って入れなくてもこれでできる
 
-       　//distance = (startPosition - waterPosition + 0.5f)* 100f;//上の式に変更
+       　distance = (startPosition - waterPosition + 0.5f)* 100f;//上の式に変更
 
         distanceCut = Mathf.Floor(distance)/100f;//100掛けて、小数点以下切り捨てて、100掛ければ小数点以下第二位まで残せる
 
@@ -50,11 +48,11 @@ public class GameMaster : MonoBehaviour
 
         if(distance>0.00f)
         {
-            score = GameObject.Find("penguin").GetComponent<PlayerController>().totalscore;
+            //score = GameObject.Find("penguin").GetComponent<PlayerController>().totalscore;
 
-            ScoreLabel.text = "Score:" + score;
 
-            GameObject p = GameObject.Find("penguin");
+
+            //GameObject p = GameObject.Find("penguin");
 
             changePosition = p.transform.position.y;//なぜかここで止まる、うまくいかない
 
@@ -67,7 +65,6 @@ public class GameMaster : MonoBehaviour
 
             distanceLabel.text = distanceCut + "m";
 
-
         }
 
         else
@@ -76,5 +73,10 @@ public class GameMaster : MonoBehaviour
 
             distanceLabel.text = distance + ".00m";
         }
+    }
+
+    public void Addscore( int totalscore)
+    {
+        ScoreLabel.text = "Score:" + totalscore;
     }
 }

@@ -25,11 +25,15 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     private AudioClip splashSE = null;
 
-    //private Vector3 penginAngles;
+    public int totalscore;//ポイント計算用
 
-    public int totalscore;
+    private Vector3 penguinAngles;//姿勢制御用
+    private Vector3 startAngles;//最初の姿勢を記憶用
 
+    [SerializeField]
+    private GameMaster gamemaster;//GameMaterScriptを参照するため 
 
+    private bool pc;//PostureChangeScriptから受け取ったbool型のデータをこの箱に入れるため
 
     // Start is called before the first frame update
     void Start()
@@ -37,6 +41,8 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody>();
 
         transform.eulerAngles = new Vector3(0, 180, 180);
+
+        startAngles = transform.eulerAngles;
 
     }
 
@@ -48,8 +54,36 @@ public class PlayerController : MonoBehaviour
         z = Input.GetAxis("Vertical");
 
         //velocity（速度）に新しい値を代入して移動
-        rb.velocity = new Vector3(x * moveSpeed, -fallSpeed, z * moveSpeed); 
+        rb.velocity = new Vector3(x * moveSpeed, -fallSpeed, z * moveSpeed);
 
+        //transform.eulerAngles = startAngles; //ボタンを押したら姿勢情報が更新されるからこれで戻すが、これをアップデートに入れると姿勢情報が更新され続けて浮かび上がってこない
+
+    }
+
+    private void Update()
+    {
+        pc = GameObject.Find("Button").GetComponent<PostureChange>().bp;//ButtonオブジェクトについているPostureChangeScriptの中のbpのデータをpcに代入する
+
+
+        if (pc == true && inWater == false)//ボタンを押したら姿勢変更と落下速度半減
+        {
+            transform.eulerAngles = new Vector3(penguinAngles.x, transform.eulerAngles.y, transform.eulerAngles.z);
+
+            penguinAngles.x = 90f;
+
+            //rb.velocity = new Vector3(x * moveSpeed, -fallSpeed / 2.0f, z * moveSpeed);処理が重いから
+
+            rb.drag = 25.0f;//空気抵抗あり
+
+        }
+
+        if (pc == false && inWater == false)
+        {
+            transform.eulerAngles = startAngles;
+
+            rb.drag = 0f;//空気抵抗なし
+
+        }
     }
 
     private void OnTriggerEnter(Collider col)//IｓTriggerがオンのコライダーを持つゲームオブジェクトを通過した場合に呼び出されるメソッド
@@ -62,7 +96,7 @@ public class PlayerController : MonoBehaviour
             //Debug.Log("着水" + inWater);
 
             StartCoroutine(penginFloat());//水面に顔を出そうとするコルーチン
-           
+
             GameObject effect = Instantiate(splashEffectPrefab, transform.position, Quaternion.identity);//着水位置より少し低い位置でエフェクトを使いたいから着水位置を把握して、その情報をeffect変数に入れる
 
             effect.transform.position = new Vector3(effect.transform.position.x, effect.transform.position.y, effect.transform.position.z - 0.5f);
@@ -71,15 +105,17 @@ public class PlayerController : MonoBehaviour
 
         }
 
-
-
         //AudioSource.PlayClipAtPoint(splashSE, transform.position);
 
         if (col.gameObject.tag == "FlowerCircle")
         {
             totalscore += col.transform.parent.GetComponent<FlowerCircle>().flowerScore;
 
+            gamemaster.Addscore(totalscore);
+
         }
+
+
     }
 
 
@@ -93,10 +129,11 @@ public class PlayerController : MonoBehaviour
 
         rb.isKinematic = true;//重力を切る
 
-        transform.eulerAngles = new Vector3(0, 180, 0);//正面を向かせる
+        transform.eulerAngles = new Vector3(-30, 180, 0);//正面を向かせる
 
-        transform.DOMoveY(4.7f, 1.0f);//yの4.7の位置に1秒かけて動く
+        transform.DOMoveY(-0.5f, 1.0f);//yの4.7の位置に1秒かけて動く
 
     }
+
 }
 
