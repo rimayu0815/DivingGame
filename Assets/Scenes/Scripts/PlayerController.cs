@@ -33,6 +33,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     private GameMaster gamemaster;//GameMaterScriptを参照するため 
 
+
+    public float pcGauge;
+
     private bool pc;//PostureChangeScriptから受け取ったbool型のデータをこの箱に入れるため
 
     // Start is called before the first frame update
@@ -64,8 +67,10 @@ public class PlayerController : MonoBehaviour
     {
         pc = GameObject.Find("Button").GetComponent<PostureChange>().bp;//ButtonオブジェクトについているPostureChangeScriptの中のbpのデータをpcに代入する
 
+        pcGauge = GameObject.Find("GameMaster").GetComponent<GameMaster>().postureGauge.fillAmount;
 
-        if (pc == true && inWater == false)//ボタンを押したら姿勢変更と落下速度半減
+
+        if (pc == true && inWater == false && pcGauge > 0.0f)//ボタンを押したら姿勢変更と落下速度半減
         {
             transform.eulerAngles = new Vector3(penguinAngles.x, transform.eulerAngles.y, transform.eulerAngles.z);
 

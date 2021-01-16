@@ -7,10 +7,14 @@ public class PostureChange : MonoBehaviour
     public bool bp = false;//ボタンを押したら姿勢を切り替えるため
 
     public bool wt;//着水情報を入手するため
-    private Vector3 angle;//画像の角度を入れる箱,上手くいかない
+    public Vector3 angle;//画像の角度を入れる箱,上手くいかない
+
+    public GameMaster gameMaster;
 
 
     private Vector3 startpos;
+
+    private PlayerController playercontroller;
 
     // Start is called before the first frame update
     void Start()
@@ -29,27 +33,33 @@ public class PostureChange : MonoBehaviour
 
         //Debug.Log(angle.z);
 
+        playercontroller = GameObject.Find("penguin").GetComponent<PlayerController>();
 
-        
+        gameMaster = GameObject.Find("GameMaster").GetComponent<GameMaster>();//ゲージのデータをこれで取得
+
+
     }
 
     // Update is called once per frame
     void Update()
     {
-        wt = GameObject.Find("penguin").GetComponent < PlayerController > ().inWater;//着水情報を入手して画像の角度を元に戻すため
+        //wt = GameObject.Find("penguin").GetComponent < PlayerController > ().inWater;//着水情報を入手して画像の角度を元に戻すため 
 
         //Debug.Log(wt);
 
-        if(wt == true)//考え中、最初の角度を変数に入れてそれをここに持ってくるのがいいと思う
+        if(playercontroller.inWater == true)//考え中、最初の角度を変数に入れてそれをここに持ってくるのがいいと思う
         {
             transform.eulerAngles = startpos;
         }
 
+
+
     }
+
 
     public void OnClick()//クリックしたらtrueとfalseを切り替える
     {
-        if (bp != true)//trueじゃなかったら
+        if (bp != true)//trueじゃなかったら＋ゲージがMaxだったら
         {
             bp = true;
             //Debug.Log("trueになった");
@@ -70,5 +80,7 @@ public class PostureChange : MonoBehaviour
 
             //transform.Rotate(new Vector3(0, 0, 90f));//傾きを戻す
         }
+
+        gameMaster.ChangeButtonInteractable(angle.z);
     }
 }

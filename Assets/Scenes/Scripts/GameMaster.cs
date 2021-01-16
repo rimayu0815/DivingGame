@@ -9,6 +9,10 @@ public class GameMaster : MonoBehaviour
     [SerializeField]
     private Text ScoreLabel;
 
+
+    /// <summary>
+    /// プレイ画面右下の距離を表示
+    /// </summary>
     private GameObject p;//penguinオブジェクトのデータを入れる箱
     private float startPosition;//ペンギンの最初の位置---これいらない
     private float changePosition;
@@ -18,6 +22,21 @@ public class GameMaster : MonoBehaviour
     private float distanceCut;//小数点以下を切り捨てるため
     [SerializeField]
     private Text distanceLabel;
+
+
+    /// <summary>
+    ///プレイ画面左下の姿勢変更ゲージを作成 
+    /// </summary>
+    public Image postureGauge;//fillAmountを使うためにデータを入れる
+    public GameObject pg;//上のpostureGaugeにデータを入れるため
+    //public float gauge = 1.0f;//姿勢切り替えがゲージの間だけ使えるようにする  要らない
+    public bool gtf;//PostureChangeからbpのデータを手に入れるため
+    public int gaugeMax;//要らない
+    public float countTime = 2.0f;//これでゲージの減りを調整
+    public PostureChange postureChange;//ゲージが満タンのとき以外に切り替えれないようにするため
+    //完成したがinteractibleを使って再度作り直し
+    private Button buttonAttitude;
+
 
     // Start is called before the first frame update
     void Start()
@@ -40,17 +59,30 @@ public class GameMaster : MonoBehaviour
         Debug.Log(distanceCut);
 
         distanceLabel.text = distanceCut + "m";
+
+
+
+        pg = GameObject.Find("ImageGauge");//ImageGaugeにあるfillAmountを使うためデータを取得
+        postureGauge = pg.GetComponent<Image>();//Image型のpostureGaugeにデータを入れる
+
+        postureGauge.fillAmount = 1.0f;//最初のゲージ量を設定
+
+        buttonAttitude = GameObject.Find("Button").GetComponent<Button>();
+
+        postureChange = GameObject.Find("Button").GetComponent<PostureChange>();
+
+
     }
 
     // Update is called once per frame
     void Update()
     {
-
+        ///<summary>
+        ///プレイ画面右下の距離を表示
+        /// </summary>
         if(distance>0.00f)
         {
             //score = GameObject.Find("penguin").GetComponent<PlayerController>().totalscore;
-
-
 
             //GameObject p = GameObject.Find("penguin");
 
@@ -62,21 +94,96 @@ public class GameMaster : MonoBehaviour
 
             distanceCut = Mathf.Floor(distance)/100f;
 
-
             distanceLabel.text = distanceCut + "m";
 
         }
-
         else
         {
             distance = 0.00f;
 
             distanceLabel.text = distance + ".00m";
         }
+
+
+        
+        ///<summary>
+        ///プレイ画面左下の姿勢変更ゲージを作成
+        /// </summary>
+        gtf = postureChange.bp;//ボタンを押しているときにゲージを変動させるために取得
+
+        if (gtf == true)
+        {
+            postureGauge.fillAmount -= 1.0f / countTime * Time.deltaTime;
+
+            if (postureGauge.fillAmount <= 0.0f)
+            {
+                postureGauge.fillAmount = 0.0f;
+
+                buttonAttitude.interactable = false;
+
+                //pcAngle.angle.z = 0;
+                p.transform.eulerAngles = new Vector3(0, 0, 180);
+                buttonAttitude.transform.eulerAngles = new Vector3(0, 0, 180);
+                postureChange.bp = false;
+                gtf = postureChange.bp;
+            }
+        }
+        else if (gtf == false)
+        {
+            postureGauge.fillAmount +=1.0f/countTime * Time.deltaTime;
+            if (postureGauge.fillAmount >= 1.0f)
+            {
+                postureGauge.fillAmount = 1.0f;
+
+                buttonAttitude.interactable = true;
+            }
+        }
+        //ptf = postureGauge.fillAmount;//このデータをPostureChangeに送ってる
+
+        //if (pcAngle.angle.z == 90.0f)
+        //{
+        //    buttonAttitude.interactable = true;
+        //}
+        //else
+        //{
+        //    buttonAttitude.interactable = false;
+        //}
+
+        //Debug.Log(ptf);
+
+        //if(postureGauge.fillAmount = 1.0f)
+        //{
+        //ptf = true;
+        //}
+        //else 
+        //{
+        //ptf = false;
+        //}
+        //ゲージが0になったら、強制的に切り替えるよう他Script同様修正
+
+
+
+
+
+
     }
 
     public void Addscore( int totalscore)
     {
         ScoreLabel.text = "Score:" + totalscore;
+    }
+
+    public void ChangeButtonInteractable(float angle)
+    {
+        //ボタンが90度だったら
+        if(angle == 90.0f)
+        {
+            buttonAttitude.interactable = true;
+        }
+        else
+        {
+            buttonAttitude.interactable = false;
+            //gtf = true;
+        }
     }
 }
