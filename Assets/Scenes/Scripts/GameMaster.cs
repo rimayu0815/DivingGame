@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Coffee.UIExtensions;//ShinyEffectForUGUIを利用するために必要な宣言
+
 
 public class GameMaster : MonoBehaviour
 {
@@ -36,6 +38,15 @@ public class GameMaster : MonoBehaviour
     public PostureChange postureChange;//ゲージが満タンのとき以外に切り替えれないようにするため
     //完成したがinteractibleを使って再度作り直し
     private Button buttonAttitude;
+
+
+    [SerializeField]
+    private ShinyEffectForUGUI shinyEffect;
+
+    public bool isGaugeMax;
+
+
+
 
 
     // Start is called before the first frame update
@@ -131,11 +142,17 @@ public class GameMaster : MonoBehaviour
         else if (gtf == false)
         {
             postureGauge.fillAmount +=1.0f/countTime * Time.deltaTime;
-            if (postureGauge.fillAmount >= 1.0f)
+            if (postureGauge.fillAmount >= 1.0f && isGaugeMax == false)
             {
+                isGaugeMax = true;
+
                 postureGauge.fillAmount = 1.0f;
 
+                shinyEffect.Play(0.5f);//なぜかクリックした時に光るようになっている
+                Debug.Log(postureGauge.fillAmount);
+                
                 buttonAttitude.interactable = true;
+
             }
         }
         //ptf = postureGauge.fillAmount;//このデータをPostureChangeに送ってる

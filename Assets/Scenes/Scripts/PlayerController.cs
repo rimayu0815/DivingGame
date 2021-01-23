@@ -38,6 +38,19 @@ public class PlayerController : MonoBehaviour
 
     private bool pc;//PostureChangeScriptから受け取ったbool型のデータをこの箱に入れるため
 
+
+    public GameObject penguin;
+
+    private FlowerCircle flowercircle;
+
+    private float second = 1.0f;
+
+
+    private Animator anim;
+
+
+
+
     // Start is called before the first frame update
     void Start()
     {
@@ -47,6 +60,9 @@ public class PlayerController : MonoBehaviour
 
         startAngles = transform.eulerAngles;
 
+
+
+        anim = GetComponent<Animator>();
     }
 
     // Update is called once per frame
@@ -80,6 +96,8 @@ public class PlayerController : MonoBehaviour
 
             rb.drag = 25.0f;//空気抵抗あり
 
+            anim.SetBool("Prone", true);
+
         }
 
         if (pc == false && inWater == false)
@@ -87,6 +105,8 @@ public class PlayerController : MonoBehaviour
             transform.eulerAngles = startAngles;
 
             rb.drag = 0f;//空気抵抗なし
+
+            anim.SetBool("Prone", false);
 
         }
     }
@@ -114,9 +134,22 @@ public class PlayerController : MonoBehaviour
 
         if (col.gameObject.tag == "FlowerCircle")
         {
-            totalscore += col.transform.parent.GetComponent<FlowerCircle>().flowerScore;
+            flowercircle = col.transform.parent.GetComponent<FlowerCircle>();
+
+            totalscore += flowercircle.flowerScore;
 
             gamemaster.Addscore(totalscore);
+
+            flowercircle.transform.SetParent(gameObject.transform);
+
+            ///<summary>花輪の演出</summary>
+            //penguin.transform.position = new Vector3(penguin.transform.position.x, penguin.transform.position.y, penguin.transform.position.z);
+
+            //Debug.Log(penguin.transform.position);
+
+            flowercircle.Move(this);
+
+            //FlowerCircle.DOLocalMove(new Vector3(penguin.x,penguin.y,penguin.z),1);
 
         }
 

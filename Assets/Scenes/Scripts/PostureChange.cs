@@ -16,6 +16,8 @@ public class PostureChange : MonoBehaviour
 
     private PlayerController playercontroller;
 
+    private FlowerCircle flowercircle;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -24,7 +26,6 @@ public class PostureChange : MonoBehaviour
 
         startpos = transform.eulerAngles;
 
-        Debug.Log(angle);
         angle.z = 180.0f;
 
         transform.eulerAngles = new Vector3(0, 0, angle.z);
@@ -68,6 +69,8 @@ public class PostureChange : MonoBehaviour
             transform.eulerAngles = new Vector3(0, 0, angle.z);
 
             //transform.Rotate(new Vector3(0f, 0f, -90f));//傾く
+
+            gameMaster.isGaugeMax = false;
         }
 
         else
