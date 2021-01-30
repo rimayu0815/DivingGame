@@ -68,9 +68,11 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-        //キー入力の受付
-        x = Input.GetAxis("Horizontal");
-        z = Input.GetAxis("Vertical");
+       // if (inWater == false)//キー入力の受付
+        {
+            x = Input.GetAxis("Horizontal");
+            z = Input.GetAxis("Vertical");
+        }
 
         //velocity（速度）に新しい値を代入して移動
         rb.velocity = new Vector3(x * moveSpeed, -fallSpeed, z * moveSpeed);
@@ -134,6 +136,8 @@ public class PlayerController : MonoBehaviour
 
         if (col.gameObject.tag == "FlowerCircle")
         {
+            col.GetComponent<BoxCollider>().enabled = false;
+
             flowercircle = col.transform.parent.GetComponent<FlowerCircle>();
 
             totalscore += flowercircle.flowerScore;
@@ -161,7 +165,7 @@ public class PlayerController : MonoBehaviour
     /// 水面に顔を出す
     /// </summary>
     /// <returns></returns>
-    IEnumerator penginFloat()
+    IEnumerator penginFloat()//方向キーを押していたら斜めで浮いてきてペンギンが表示されない
     {
         yield return new WaitForSeconds(1.0f);
 

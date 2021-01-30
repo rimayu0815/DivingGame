@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using Coffee.UIExtensions;//ShinyEffectForUGUIを利用するために必要な宣言
+using DG.Tweening;
+using UnityEngine.SceneManagement;
 
 
 public class GameMaster : MonoBehaviour
@@ -39,12 +41,25 @@ public class GameMaster : MonoBehaviour
     //完成したがinteractibleを使って再度作り直し
     private Button buttonAttitude;
 
-
     [SerializeField]
     private ShinyEffectForUGUI shinyEffect;
-
     public bool isGaugeMax;
 
+
+    private Button buttonChange;//ボタンのオンオフ
+    public PlayerController playercontroller;
+    public CameraController cameracontroller;
+
+    
+    //public GameObject canvasgroup;
+    public CanvasGroup cgResult;
+    public CanvasGroup cgText;
+
+    public Image clearImage;
+
+    public Button btnRetry;
+
+    private bool isClickable;
 
 
 
@@ -83,6 +98,30 @@ public class GameMaster : MonoBehaviour
         postureChange = GameObject.Find("Button").GetComponent<PostureChange>();
 
 
+        buttonChange = GameObject.Find("CameraButton").GetComponent<Button>();
+
+
+
+        ///<summary>クリア画面に表示しないようにする</summary>///
+        cgResult = GameObject.Find("ResultPopUp").GetComponent<CanvasGroup>();
+
+        cgResult.alpha = 0.0f;
+
+        cgText = GameObject.Find("txtRetry").GetComponent<CanvasGroup>();
+
+        cgText.alpha = 0.0f;
+
+        
+        
+        
+        
+        btnRetry = GameObject.Find("btnRetry").GetComponent<Button>();
+
+        btnRetry.interactable = false;
+
+        btnRetry.onClick.AddListener(OnClickRetry);
+
+
     }
 
     // Update is called once per frame
@@ -113,6 +152,8 @@ public class GameMaster : MonoBehaviour
             distance = 0.00f;
 
             distanceLabel.text = distance + ".00m";
+
+            GameClear();
         }
 
 
@@ -179,17 +220,29 @@ public class GameMaster : MonoBehaviour
         //ゲージが0になったら、強制的に切り替えるよう他Script同様修正
 
 
+        ButtonLast();
 
+
+        //GameClear();
 
 
 
     }
 
+
+    /// <summary>
+    /// スコア加算
+    /// </summary>
+    /// <param name="totalscore"></param>
     public void Addscore( int totalscore)
     {
         ScoreLabel.text = "Score:" + totalscore;
     }
 
+    /// <summary>
+    /// 姿勢をボタンで制御
+    /// </summary>
+    /// <param name="angle"></param>
     public void ChangeButtonInteractable(float angle)
     {
         //ボタンが90度だったら
@@ -203,4 +256,70 @@ public class GameMaster : MonoBehaviour
             //gtf = true;
         }
     }
+
+
+    /// <summary>
+    /// 着水後カメラボタンを押せなくして三人称（メイン）にカメラを戻す＋姿勢制御ボタンも使えなくする
+    /// </summary>
+    public void ButtonLast()//とりあえず成功　ボタンは全部使えなくする
+    {
+        if(playercontroller.inWater == true)
+        {
+            buttonAttitude.interactable = false;//ここに追加して名前も変えた
+
+            buttonChange.interactable = false;
+
+            cameracontroller.maincamera.enabled = true;
+
+            //Debug.Log(buttonChange.interactable);
+        }
+    }
+
+    public void GameClear()//出来なかったので見た、.SetEase(Ease.Linear).SetLoops(-1, LoopType.Yoyo)ここらへんがまだ理解できていない
+    {
+        cgResult.DOFade(1.0f, 1.0f)
+        .OnComplete(() =>
+        {
+            cgText.DOFade(1.0f, 1.0f).SetEase(Ease.Linear).SetLoops(-1, LoopType.Yoyo);
+
+            btnRetry.interactable = true;
+        });
+
+        Vector3 scale = clearImage.transform.localScale;
+
+        clearImage.transform.localScale = Vector3.zero;
+
+        Sequence sequence = DOTween.Sequence();
+
+        sequence.AppendInterval(1.0f);
+
+        sequence.Append(clearImage.transform.DOScale(1.5f, 0.25f));
+
+        sequence.Append(clearImage.transform.DOScale(scale, 0.15f));
+
+
+    }
+
+    private void OnClickRetry()
+    {
+        if(isClickable == true )
+        {
+            return;
+        }
+
+        isClickable = true;
+
+        StartCoroutine(Retry());
+    }
+
+
+    private IEnumerator Retry()
+    {
+        cgResult.DOFade(0, 1.0f);
+
+        yield return new WaitForSeconds(1.0f);
+
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
 }
